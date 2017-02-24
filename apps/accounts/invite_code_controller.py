@@ -18,7 +18,7 @@ from django.views import View
 from django.conf import settings
 from django.http import JsonResponse
 
-from apps.accounts.models import BzActiveCode
+from apps.db.models import BzActiveCode
 from utils import make_random_string
 
 

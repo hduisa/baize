@@ -29,7 +29,7 @@ from django.core.urlresolvers import reverse
 
 from utils import logger, ValidateParams, make_random_string
 from utils.send_mail import send_mail
-from apps.accounts.models import BzUser, BzActiveCode, BzUserLoginLog
+from apps.db.models import BzUser, BzActiveCode, BzUserLoginLog
 
 
 @method_decorator(csrf_exempt, name="dispatch")
