@@ -17,8 +17,10 @@
 import queue
 import threading
 import time
+import datetime
 
-from utils import logger
+from utils import logger, SpiderTask
+from apps.db.models import BzSource
 
 
 class SpiderEngine(object):
@@ -32,7 +34,7 @@ class SpiderEngine(object):
         # 存储任务的队列
         """
         任务的格式
-        tuple()
+        namedtuple(title, url, source_type, source_id)
         """
         self._task_queue = queue.Queue()
 
@@ -50,8 +52,12 @@ class SpiderEngine(object):
         self._exited = False
 
         # 分发线程
-        self.main_loop_thread = threading.Thread(target=self._run, name="SpiderEngineMainLoop")
+        self.main_loop_thread = threading.Thread(target=self._loop, name="SpiderEngineMainLoop")
         self.main_loop_thread.start()
+
+        # 定期检查源是否需要刷新
+        self.refresh_thread = threading.Thread(target=self._refresh, name="RefreshCheckLoop")
+        self.refresh_thread.start()
 
     def stop(self):
         """
@@ -82,7 +88,11 @@ class SpiderEngine(object):
         :param task: tuple，任务信息
         :return: Boolean
         """
+        if not isinstance(task, SpiderTask):
+            logger.warning("错误的任务格式")
+            return False
         self._task_queue.put(task)
+        logger.debug("已添加任务'{0}', 等待任务轮询".format(task.title))
 
     def add_tasks(self, tasks=None):
         """
@@ -93,19 +103,55 @@ class SpiderEngine(object):
         success_count = 0
 
         if not isinstance(tasks, list):
+            logger.warning("错误的任务格式")
             return False
         for t in tasks:
             if self.add_one_task(t):
                 success_count += 1
         return success_count
 
-    def _run(self):
+    def _refresh(self):
+        """
+        循环检查RSS源是否需要刷新
+        :return: None
+        """
+
+        while not self._exited:
+
+            time.sleep(5)
+
+            logger.debug("开始检查上次刷新时间")
+
+            source_qs = BzSource.objects.filter(is_deleted=0).all()
+            current_time = datetime.datetime.now()
+            current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
+            logger.debug("Current Time: {0}".format(current_time_str))
+            for each_source in source_qs:
+                last_time = each_source.last_refresh_time
+                freq = each_source.refresh_freq
+                logger.debug("{2}上次刷新时间为: {0}， 下次刷新时间为: {1}".format(
+                    last_time, last_time + datetime.timedelta(minutes=freq), each_source.title
+                ))
+
+                if last_time + datetime.timedelta(minutes=freq) < current_time:
+                    self.add_one_task(
+                        SpiderTask(
+                            title=each_source.title, url=each_source.url,
+                            source_id=each_source.id, source_type=each_source.source_type,
+                        )
+                    )
+
+        logger.info("SpiderEngine 刷新检查线程退出")
+
+    def _loop(self):
         """
         线程池的死循环函数
         :return:
         """
 
-        while self._exited:
+        logger.info("SpiderEngine启动...")
+
+        while not self._exited:
             time.sleep(1)
 
             # 更新线程计数以及从列表中删除死亡线程
@@ -124,6 +170,7 @@ class SpiderEngine(object):
             # 获取任务并运行
             task = self._task_queue.get_nowait()
 
+        logger.info("SpiderEngine 主循环线程退出")
 
 
 
