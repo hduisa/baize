@@ -142,7 +142,7 @@ class SpiderEngine(object):
                         SpiderTask(
                             title=each_source.title, url=each_source.url,
                             source_id=each_source.id, source_type=each_source.source_type,
-                            spider_id=each_source.spider_id
+                            spider_id=each_source.spider_id, use_proxy=each_source.proxy
                         )
                     )
 

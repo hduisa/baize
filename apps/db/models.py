@@ -163,6 +163,8 @@ class BzSource(models.Model):
     # indicate which spider to use
     spider_id = models.IntegerField(default=0)
 
+    proxy = models.IntegerField(default=0)
+
     # the frequency of the source's refresh.
     # default 30 min.
     refresh_freq = models.IntegerField(default=30)
