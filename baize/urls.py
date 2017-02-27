@@ -32,6 +32,6 @@ urlpatterns = [
     # show module router end
 
     # admin app router begin
-    url(r'admin/', include('apps.admin.urls')),
+    url(r'^admin/', include('apps.admin.urls')),
     # admin app router end
 ]

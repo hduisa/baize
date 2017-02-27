@@ -159,6 +159,10 @@ class BzSource(models.Model):
     # 1: RSS
     source_type = models.SmallIntegerField(default=1)
 
+    # spider id
+    # indicate which spider to use
+    spider_id = models.IntegerField(default=0)
+
     # the frequency of the source's refresh.
     # default 30 min.
     refresh_freq = models.IntegerField(default=30)
@@ -233,3 +237,19 @@ class BzLikeLog(models.Model):
         return "<BzLikeLog {aid} - {op}>".format(
             aid=self.article_id, op=self.get_operate()
         )
+
+
+class BzSpiders(models.Model):
+
+    class Meta:
+        db_table = "bz_spiders"
+
+    spider_name = models.CharField(max_length=64, db_index=True)
+    spider_filename = models.CharField(max_length=255)
+
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "<BzSpiders {sn}>".format(sn=self.spider_name)

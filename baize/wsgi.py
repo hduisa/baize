@@ -18,5 +18,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "baize.settings")
 
 application = get_wsgi_application()
 
+# user's entry code
 share_memory.spider_engine = SpiderEngine()
 

@@ -22,6 +22,6 @@ from utils.random_string import make_random_string
 from utils.share_memory import share_memory
 
 
-SpiderTask = namedtuple("SpiderTask", "title url source_type source_id")
+SpiderTask = namedtuple("SpiderTask", "title url source_type source_id spider_id")
 
 __all__ = ["logger", "ValidateParams", "make_random_string", "share_memory", "SpiderTask"]

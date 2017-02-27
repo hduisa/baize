@@ -17,6 +17,8 @@
 import requests
 import feedparser
 
+from utils import logger
+
 
 class RssSpider(object):
 
@@ -24,4 +26,8 @@ class RssSpider(object):
         self._task = task
 
     def run(self):
-        pass
+        logger.debug(self._task)
+
+
+def get_class():
+    return RssSpider

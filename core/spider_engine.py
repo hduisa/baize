@@ -20,7 +20,8 @@ import time
 import datetime
 
 from utils import logger, SpiderTask
-from apps.db.models import BzSource
+from apps.db.models import BzSource, BzSpiders
+from core.spider_loader import SpiderLoader
 
 
 class SpiderEngine(object):
@@ -58,6 +59,9 @@ class SpiderEngine(object):
         # 定期检查源是否需要刷新
         self.refresh_thread = threading.Thread(target=self._refresh, name="RefreshCheckLoop")
         self.refresh_thread.start()
+
+        # 加载爬虫
+        self.spider_loader = SpiderLoader()
 
     def stop(self):
         """
@@ -138,6 +142,7 @@ class SpiderEngine(object):
                         SpiderTask(
                             title=each_source.title, url=each_source.url,
                             source_id=each_source.id, source_type=each_source.source_type,
+                            spider_id=each_source.spider_id
                         )
                     )
 
@@ -152,7 +157,7 @@ class SpiderEngine(object):
         logger.info("SpiderEngine启动...")
 
         while not self._exited:
-            time.sleep(1)
+            # time.sleep(1)
 
             # 更新线程计数以及从列表中删除死亡线程
             self._update_thread_list()
@@ -160,15 +165,35 @@ class SpiderEngine(object):
             # 查看当前是否有任务
             if self._task_queue.empty():
                 logger.debug("任务队列为空, 当前运行任务数: {0}".format(self._working_thread_num))
+                time.sleep(1)
                 continue
 
             # 查看是否有空闲的位置
             if self._working_thread_num >= self._max_pool_size:
                 logger.debug("线程池已满")
+                time.sleep(1)
                 continue
 
             # 获取任务并运行
             task = self._task_queue.get_nowait()
+            # 根据不同的spider id，加载不同的爬虫
+            spider_id = task.spider_id
+            spider_qs = BzSpiders.objects.filter(id=spider_id).first()
+            if not spider_qs:
+                logger.error("Invalid SpiderTask, No such spider. Task info: {0}".format(task))
+                time.sleep(1)
+                continue
+            spider_filename = spider_qs.spider_filename
+            spider_class = self.spider_loader.load_one(spider_filename)
+            spider_instance = spider_class(task)
+
+            # 生成线程名称
+            thread_name = spider_filename.split(".")[0] + "_" + task.title
+
+            # 生成工作线程
+            task_thread = threading.Thread(target=spider_instance.run, name=thread_name)
+            task_thread.start()
+            self._working_thread_list.append(task_thread)
 
         logger.info("SpiderEngine 主循环线程退出")
 
