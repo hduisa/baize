@@ -13,15 +13,20 @@
     :copyright: Copyright (c) 2017 lightless. All rights reserved
 """
 
-
-class A(object):
-
-    def __init__(self):
-        super(A, self).__init__()
-
-    def __str__(self):
-        return "123"
+import requests
+import feedparser
 
 
-a = A()
-print(a)
+if __name__ == '__main__':
+
+    url = "https://lightless.me/feed"
+    content = requests.get(url).content
+    raw_feed = feedparser.parse(content)
+    print(raw_feed)
+    for feed in raw_feed.get("entries"):
+        title = feed.get("title")
+        link = feed.get("link")
+        summary = feed.get("summary")
+        content = feed.get("content")
+        publish_time = feed.get("published_parsed")
+

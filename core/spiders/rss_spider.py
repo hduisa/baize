@@ -14,10 +14,14 @@
     :copyright: Copyright (c) 2017 lightless. All rights reserved
 """
 
+import time
+import datetime
+
 import requests
 import feedparser
 
 from utils import logger
+from apps.db.models import BzArticles, BzSource
 
 
 class RssSpider(object):
@@ -44,8 +48,40 @@ class RssSpider(object):
         else:
             r = requests.get(url)
 
-        logger.debug(r.content)
+        # logger.debug(r.content)
+        raw_feed = feedparser.parse(r.content)
+        source_qs = BzSource.objects.filter(id=self._task.source_id).first()
+        if not source_qs:
+            logger.warning("Wrong source information.")
+
+        for feed in raw_feed.get("entries"):
+            title = feed.get("title")
+            link = feed.get("link")
+            content = feed.get("content", "")[0].get("value", "")
+            if content == "":
+                content = link
+            summary = feed.get("summary", "")
+            if summary == "":
+                summary = content[:256]
+            publish_time = feed.get("published_parsed")
+
+            # 检查是否存在该情报了
+            temp_qs = BzArticles.objects.filter(url=link).first()
+            if temp_qs:
+                logger.info("文章[{0}]已经存在".format(title))
+                continue
+
+            new_article = BzArticles()
+            new_article.title = title
+            new_article.url = link
+            new_article.contents = content
+            new_article.summary = summary
+            new_article.publish_time = datetime.datetime.fromtimestamp(time.mktime(publish_time))
+            new_article.source = source_qs
+            new_article.save()
+            logger.info("存储文章[{0}]成功".format(title))
 
 
 def get_class():
     return RssSpider
+

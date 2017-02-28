@@ -195,6 +195,11 @@ class SpiderEngine(object):
             task_thread.start()
             self._working_thread_list.append(task_thread)
 
+            # 更新这个任务的最后一次刷新时间
+            qs = BzSource.objects.filter(id=task.source_id).first()
+            qs.last_refresh_time = datetime.datetime.now()
+            qs.save()
+
         logger.info("SpiderEngine 主循环线程退出")
 
 
