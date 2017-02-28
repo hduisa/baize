@@ -176,13 +176,16 @@ class SpiderEngine(object):
 
             # 获取任务并运行
             task = self._task_queue.get_nowait()
-            # 根据不同的spider id，加载不同的爬虫
+
+            # 获取任务的爬虫信息
             spider_id = task.spider_id
             spider_qs = BzSpiders.objects.filter(id=spider_id).first()
             if not spider_qs:
                 logger.error("Invalid SpiderTask, No such spider. Task info: {0}".format(task))
                 time.sleep(1)
                 continue
+
+            # 根据爬虫信息，import进相应的爬虫并实例化
             spider_filename = spider_qs.spider_filename
             spider_class = self.spider_loader.load_one(spider_filename)
             spider_instance = spider_class(task)
