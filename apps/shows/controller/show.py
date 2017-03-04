@@ -16,10 +16,20 @@
 from django.views import View
 from django.shortcuts import render
 
+from apps.db.models import BzArticles, BzSource
+
 
 class ShowIndex(View):
 
     @staticmethod
     def get(request):
-        return render(request, "shows/show.html")
+
+        articles = BzArticles.objects.filter(is_deleted=0).all()[:10]
+        rss_source = BzSource.objects.filter(is_deleted=0).all()
+
+        context = {
+            "articles": articles,
+            "rss_sources": rss_source,
+        }
+        return render(request, "shows/show.html", context=context)
 

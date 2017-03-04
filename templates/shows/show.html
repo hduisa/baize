@@ -1,2 +1,70 @@
 {% extends 'shows/base.html' %}
 {% block title %}白泽 | 首页{% endblock %}
+{% block page_title %}浏览RSS内容{% endblock %}
+{% block page_desc %}Show RSS content{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-12 col-xs-12">
+    {% for article in articles %}
+      <div class="box box-danger" data-aid="{{ article.id }}">
+        <div class="box-header with-border">
+          <h4 class="box-title">{{ article.title }}</h4>
+        </div>
+        <div class="box-body">
+          <div>{{ article.summary }}</div>
+        </div>
+        <div class="box-footer">
+          <button class="btn btn-success btn-flat btn-sm js-read-more" data-url="{{ article.url }}">继续阅读</button>
+          <button class="btn btn-info btn-flat btn-sm">评论 <span class="comment-count">(0)</span></button>
+          <button class="btn btn-danger btn-flat pull-right btn-sm js-like"><i class="fa fa-fx fa-thumbs-o-down"></i> {{ article.likes }}</button>
+          <button class="btn btn-primary btn-flat pull-right btn-sm js-dislike"><i class="fa fa-fx fa-thumbs-o-up"></i> {{ article.dislike }}</button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block rss_list %}
+  {% for rss_source in rss_sources %}
+    <li><a href="#"><i class="fa fa-circle-o"></i> <span>{{ rss_source.title }}</span></a></li>
+  {% endfor %}
+{% endblock %}
+
+{% block script %}
+  <script>
+
+  $(document).ready(function () {
+
+      // 继续阅读按钮
+      $(".js-read-more").on("click", function () {
+          let url = $(this).data("url");
+          window.open(url);
+      });
+
+      // 点赞功能
+      $(".js-like").on("click", function () {
+          let aid = $(this).parent().parent().data("aid");
+          let post_url = "{% url 'show_api_like' %}";
+          let payload = {
+              aid: aid,
+              act: "like",
+              csrfmiddlewaretoken: Cookies.get("csrftoken"),
+          };
+          let $elem = $(this);
+          $.post(post_url, payload, function (data) {
+              if (data.code == 1001) {
+                  // 显示+1
+                  let old_count = $elem.text();
+                  $elem.html('<i class="fa fa-fx fa-thumbs-o-down"></i> ' + String(old_count-0+1));
+                  makeNoty("information", "操作成功");
+              } else {
+                  makeNoty("error", data.message);
+              }
+          });
+      });
+
+  });
+
+  </script>
+{% endblock %}

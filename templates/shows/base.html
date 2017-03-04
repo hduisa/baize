@@ -86,6 +86,8 @@
       <ul class="sidebar-menu">
         <li class="header">主菜单</li>
         <li><a href="#"><i class="fa fa-circle-o"></i> <span>贡献RSS源</span></a></li>
+        <li class="header">RSS列表</li>
+        {% block rss_list %}{% endblock %}
       </ul>
     </section>
   </aside>
@@ -120,5 +122,9 @@
 <script src="/static/js/jquery.slimscroll.min.js"></script>
 <script src="/static/js/fastclick.min.js"></script>
 <script src="/static/js/app.min.js"></script>
+<script src="//cdn.bootcss.com/js-cookie/latest/js.cookie.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-noty/2.4.0/packaged/jquery.noty.packaged.min.js"></script>
+<script src="/static/js/utils.js"></script>
+{% block script %}{% endblock %}
 </body>
 </html>

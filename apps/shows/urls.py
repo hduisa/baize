@@ -15,8 +15,9 @@
 
 from django.conf.urls import url
 
-from apps.shows.controller import show
+from apps.shows.controller import show, api
 
 urlpatterns = [
     url(r"^index$", show.ShowIndex.as_view(), name="show_index"),
+    url(r"^api/like$", api.LikeApiView.as_view(), name="show_api_like"),
 ]

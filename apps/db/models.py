@@ -192,6 +192,7 @@ class BzArticles(models.Model):
     summary = models.CharField(max_length=512, default="")
     contents = models.TextField()
     likes = models.IntegerField(default=0)
+    dislike = models.IntegerField(default=0)
     publish_time = models.DateTimeField(default=datetime.datetime.now)
     source = models.ForeignKey(BzSource, on_delete=models.CASCADE)
 
