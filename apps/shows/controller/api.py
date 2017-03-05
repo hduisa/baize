@@ -26,6 +26,8 @@ class LikeApiView(View):
 
     @staticmethod
     def post(request):
+
+        # 获取参数
         act = request.POST.get("act", "like")
         aid = request.POST.get("aid", "")
         if aid == "":
@@ -34,29 +36,53 @@ class LikeApiView(View):
         if not article_qs:
             return JsonResponse(dict(code=1006, message="Error"))
 
-        # 检查用户是否操作过这个文章
+        user_id = request.session.get("user_id")
         log_qs = BzLikeLog.objects.filter(
-            is_deleted=0, user_id=request.session["user_id"], article_id=aid
+            is_deleted=0, user_id=user_id, article_id=aid
         ).first()
-        if log_qs:
-            return JsonResponse(dict(code=1007, message="请勿重复操作"))
 
+        # 根据act参数判断操作类型
         if act == "like":
-            article_qs.likes += 1
-            article_qs.save()
-            log_qs = BzLikeLog(user_id=request.session["user_id"], article_id=aid, operate=1)
-            log_qs.save()
-            return JsonResponse(dict(code=1001, message="success"))
+
+            if not log_qs:
+                # 直接加一
+                article_qs.likes += 1
+                article_qs.save()
+                # 点赞log
+                qs = BzLikeLog(article_id=aid, user_id=user_id, operate=1)
+                qs.save()
+                return JsonResponse(dict(code=1001, message="操作成功"))
+            else:
+                if log_qs.operate == 1:
+                    # 已经点过赞了，取消赞
+                    log_qs.delete()
+                    article_qs.likes -= 1
+                    article_qs.save()
+                    return JsonResponse(dict(code=1001, message="操作成功"))
+                else:
+                    # 不能同时点赞和踩
+                    return JsonResponse(dict(code=1004, message="不能同时赞和踩"))
 
         elif act == "dislike":
-            article_qs.dislike += 1
-            article_qs.save()
-            log_qs = BzLikeLog(user_id=request.session["user_id"], article_id=aid, operate=2)
-            log_qs.save()
-            return JsonResponse(dict(code=1001, message="success"))
-
+            if not log_qs:
+                article_qs.dislike += 1
+                article_qs.save()
+                qs = BzLikeLog(article_id=aid, user_id=user_id, operate=2)
+                qs.save()
+                return JsonResponse(dict(code=1001, message="操作成功"))
+            else:
+                if log_qs.operate == 2:
+                    log_qs.delete()
+                    article_qs.dislike -= 1
+                    article_qs.save()
+                    return JsonResponse(dict(code=1001, message="操作成功"))
+                else:
+                    # 不能同时点赞和踩
+                    return JsonResponse(dict(code=1004, message="不能同时赞和踩"))
         else:
             return JsonResponse(dict(code=1004, message="Error!"))
+
+
 
 
 
