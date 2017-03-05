@@ -16,6 +16,8 @@
 from django.views import View
 from django.shortcuts import render
 
+from utils import parser_opml, logger
+
 
 class ImportOPMLView(View):
 
@@ -25,5 +27,11 @@ class ImportOPMLView(View):
 
     @staticmethod
     def post(request):
-        pass
+        opml_file = request.FILES.get("opml-file", None)
+        logger.debug(opml_file)
+        logger.debug(request.FILES)
+        raw_opml = ""
+        for chunk in opml_file.chunks():
+            raw_opml += str(chunk)
+        logger.debug(raw_opml)
 

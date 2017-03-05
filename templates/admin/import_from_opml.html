@@ -14,17 +14,37 @@
           <form role="form">
             <div class="form-group">
               <label for="opml-file">请选择OPML文件</label>
-              <input type="file" id="opml-file">
+              <input type="file" id="opml-file" name="opml-file">
               <p class="help-block">暂时只支持此种导入方式，如果需要更多方式的支持，请到github开issue.</p>
             </div>
           </form>
         </div>
         <div class="box-footer">
-          <button class="btn btn-success btn-flat">导入</button>
+          <button class="btn btn-success btn-flat js-import">导入</button>
         </div>
       </div>
     </div>
   </div>
-
 {% endblock %}
+{% block script %}
+  <script>
+  $(document).ready(function () {
+    $(".js-import").on("click", function () {
+      let formData = new FormData();
+      formData.append("opml-file", $("#opml-file")[0].files[0]);
+      formData.append("csrfmiddlewaretoken", Cookies.get("csrftoken"));
+      $.ajax({
+        url: "{% url 'admin_import' %}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+          console.log(data);
+        }
+      });
+    });
+  });
 
+  </script>
+{% endblock %}
