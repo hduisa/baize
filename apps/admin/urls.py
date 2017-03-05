@@ -15,8 +15,11 @@
 
 from django.conf.urls import url
 
-from apps.admin.controller import index
+from apps.admin.controller import index, import_opml
 
 urlpatterns = [
     url(r"^index$", index.IndexView.as_view(), name="admin_index"),
+
+    # import from OPML file
+    url(r"^import$", import_opml.ImportOPMLView.as_view(), name="admin_import"),
 ]

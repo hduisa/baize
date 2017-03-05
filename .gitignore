@@ -72,3 +72,4 @@ crashlytics-build.properties
 fabric.properties
 baize/settings.py
 .idea/
+tests/feedly.opml

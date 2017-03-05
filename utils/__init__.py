@@ -20,8 +20,8 @@ from utils.log_helper import logger
 from utils.validate_params import ValidateParams
 from utils.random_string import make_random_string
 from utils.share_memory import share_memory
+from utils.parser_opml import parser_opml
 
 
 SpiderTask = namedtuple("SpiderTask", "title url source_type source_id spider_id use_proxy")
 
-__all__ = ["logger", "ValidateParams", "make_random_string", "share_memory", "SpiderTask"]

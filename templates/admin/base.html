@@ -91,7 +91,7 @@
         <li><a href="#"><i class="fa fa-circle-o"></i> <span>评论管理</span></a></li>
 
         <li class="header">导入</li>
-        <li><a href="#"><i class="fa fa-circle-o"></i> <span>从OPML文件导入</span></a></li>
+        <li><a href="{% url 'admin_import' %}"><i class="fa fa-circle-o"></i> <span>从OPML文件导入</span></a></li>
       </ul>
     </section>
   </aside>
@@ -126,5 +126,8 @@
 <script src="/static/js/jquery.slimscroll.min.js"></script>
 <script src="/static/js/fastclick.min.js"></script>
 <script src="/static/js/app.min.js"></script>
+<script src="//cdn.bootcss.com/js-cookie/latest/js.cookie.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-noty/2.4.0/packaged/jquery.noty.packaged.min.js"></script>
+<script src="/static/js/utils.js"></script>
 </body>
 </html>
