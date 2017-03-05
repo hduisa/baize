@@ -146,6 +146,25 @@ class BzActiveCode(models.Model):
             return "已使用"
 
 
+class BzSourceGroup(models.Model):
+    """
+    存储RSS分组的信息
+    """
+
+    class Meta:
+        db_table = "bz_source_group"
+
+    group_name = models.CharField(max_length=64, db_index=True, default="")
+    group_desc = models.CharField(max_length=256, default="")
+
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "<BzSourceGroup {name}>".format(name=self.group_name)
+
+
 class BzSource(models.Model):
 
     class Meta:
@@ -170,6 +189,7 @@ class BzSource(models.Model):
     refresh_freq = models.IntegerField(default=30)
     last_refresh_time = models.DateTimeField(default=datetime.datetime.now)
     author = models.CharField(max_length=64, unique=True)
+    group_id = models.IntegerField(default=0)
 
     created_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
