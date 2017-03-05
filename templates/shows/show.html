@@ -56,7 +56,11 @@
               if (data.code == 1001) {
                   // 显示+1
                   let old_count = $elem.text();
-                  $elem.html('<i class="fa fa-fx fa-thumbs-o-down"></i> ' + String(old_count-0+1));
+                  if (data.flag == "add") {
+                      $elem.html('<i class="fa fa-fx fa-thumbs-o-down"></i> ' + String(old_count-0+1));
+                  } else if (data.flag == "sub") {
+                      $elem.html('<i class="fa fa-fx fa-thumbs-o-down"></i> ' + String(old_count-0-1));
+                  }
                   makeNoty("information", "操作成功");
               } else {
                   makeNoty("error", data.message);

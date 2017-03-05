@@ -51,14 +51,15 @@ class LikeApiView(View):
                 # 点赞log
                 qs = BzLikeLog(article_id=aid, user_id=user_id, operate=1)
                 qs.save()
-                return JsonResponse(dict(code=1001, message="操作成功"))
+                return JsonResponse(dict(code=1001, message="操作成功", flag="add"))
             else:
                 if log_qs.operate == 1:
                     # 已经点过赞了，取消赞
-                    log_qs.delete()
+                    log_qs.is_deleted = 1
+                    log_qs.save()
                     article_qs.likes -= 1
                     article_qs.save()
-                    return JsonResponse(dict(code=1001, message="操作成功"))
+                    return JsonResponse(dict(code=1001, message="操作成功", flag="sub"))
                 else:
                     # 不能同时点赞和踩
                     return JsonResponse(dict(code=1004, message="不能同时赞和踩"))
@@ -69,13 +70,14 @@ class LikeApiView(View):
                 article_qs.save()
                 qs = BzLikeLog(article_id=aid, user_id=user_id, operate=2)
                 qs.save()
-                return JsonResponse(dict(code=1001, message="操作成功"))
+                return JsonResponse(dict(code=1001, message="操作成功", flag="add"))
             else:
                 if log_qs.operate == 2:
-                    log_qs.delete()
+                    log_qs.is_deleted = 1
+                    log_qs.save()
                     article_qs.dislike -= 1
                     article_qs.save()
-                    return JsonResponse(dict(code=1001, message="操作成功"))
+                    return JsonResponse(dict(code=1001, message="操作成功", flag="sub"))
                 else:
                     # 不能同时点赞和踩
                     return JsonResponse(dict(code=1004, message="不能同时赞和踩"))
