@@ -41,23 +41,37 @@ class ImportOPMLView(View):
             ff.write(raw_opml)
             ff.seek(0)
             result = parser_opml(ff)
-        logger.debug(result)
+
+        import_sum = 0
+        exist_sum = 0
 
         # 导入所有的源
         for key, value in result.items():
             group_name = key
-            source_group = BzSourceGroup(group_name=group_name, group_desc=group_name)
-            source_group.save()
 
-            # logger.info(key)
-            # logger.info(value)
+            # 检查分组是否已经存在
+            qs = BzSourceGroup.objects.filter(group_name=group_name).first()
+            if qs:
+                # 存在，取出分组id
+                group_id = qs.id
+            else:
+                # 不存在，插入新的分组并取出分组id
+                source_group = BzSourceGroup(group_name=group_name, group_desc=group_name)
+                source_group.save()
+                group_id = source_group.id
 
             for s in value:
-                logger.info(s)
-                source = BzSource(title=s.get("title"), url=s.get("url"), spider_id=1, group_id=source_group.id)
-                source.save()
+                # 检查这个RSS源是否存在
+                qs = BzSource.objects.filter(url=s.get("url"))
+                if qs:
+                    exist_sum += 1
+                    continue
+                else:
+                    source = BzSource(title=s.get("title"), url=s.get("url"), spider_id=1, group_id=group_id)
+                    source.save()
+                    import_sum += 1
 
-        return JsonResponse(dict(code=1001, message="导入成功"))
+        return JsonResponse(dict(code=1001, message="导入成功，已存在{0}个源，导入{1}个源".format(exist_sum, import_sum)))
 
 
 
