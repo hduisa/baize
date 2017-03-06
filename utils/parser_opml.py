@@ -15,9 +15,12 @@
 
 import listparser
 
+from utils import logger
+
 
 def parser_opml(handler):
     result = listparser.parse(handler)
+    logger.debug(result)
     source = dict()
 
     for feed in result.feeds:

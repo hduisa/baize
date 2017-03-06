@@ -15,7 +15,7 @@
             <div class="form-group">
               <label for="opml-file">请选择OPML文件</label>
               <input type="file" id="opml-file" name="opml-file">
-              <p class="help-block">暂时只支持此种导入方式，如果需要更多方式的支持，请到github开issue.</p>
+              <p class="help-block">暂时只支持此种导入方式，如果需要更多方式的支持，请到github提交Pull Request.</p>
             </div>
           </form>
         </div>
@@ -41,6 +41,11 @@
         contentType: false,
         success: function (data) {
           console.log(data);
+          if (data.code == 1001) {
+              makeNoty("success", data.message);
+          } else {
+              makeNoty("error", data.message);
+          }
         }
       });
     });

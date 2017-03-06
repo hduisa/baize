@@ -188,7 +188,7 @@ class BzSource(models.Model):
     # default 30 min.
     refresh_freq = models.IntegerField(default=30)
     last_refresh_time = models.DateTimeField(default=datetime.datetime.now)
-    author = models.CharField(max_length=64, unique=True)
+    author = models.CharField(max_length=64, default="")
     group_id = models.IntegerField(default=0)
 
     created_time = models.DateTimeField(auto_now_add=True)
