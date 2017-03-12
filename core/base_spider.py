@@ -46,8 +46,8 @@ class BaseSpider(object):
 
         # default UA setting
         # todo: move this to config file.
-        self._user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ",
-                            "(KHTML, like Gecko) Chrome/58.0.3010.0 Safari/537.36")
+        self._user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
+                           "(KHTML, like Gecko) Chrome/58.0.3010.0 Safari/537.36"
 
     def http_request(self, target_url=None):
         """
@@ -68,7 +68,7 @@ class BaseSpider(object):
 
         return r.content
 
-    def _parse_rss(self, raw_rss):
+    def parse_rss(self, raw_rss):
         """
         解析RSS文章
         :param raw_rss: 待解析的原文
@@ -104,12 +104,16 @@ class BaseSpider(object):
                 summary = summary[:512]
 
             publish_time = entry.get("published_parsed")
+            if not publish_time:
+                publish_time = datetime.datetime.now()
+            else:
+                publish_time = datetime.datetime.fromtimestamp(time.mktime(publish_time))
 
             temp_dict = {
                 "title": title,
-                "link": link,
+                "url": link,
                 "summary": summary,
-                "content": content,
+                "contents": content,
                 "publish_time": publish_time,
             }
             result.append(temp_dict)
