@@ -26,8 +26,18 @@
 {% endblock %}
 
 {% block rss_list %}
-  {% for rss_source in rss_sources %}
-    <li><a href="#"><i class="fa fa-circle-o"></i> <span>{{ rss_source.title }}</span></a></li>
+  {% for group_name, rss in rss_sources.items %}
+    <li class="treeview">
+      <a href="#">
+        <i class="fa fa-dashboard"></i> <span>{{ group_name }}</span>
+        <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+      </a>
+      <ul class="treeview-menu">
+        {% for r in rss %}
+          <li style="display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><a href="#"><i class="fa fa-circle-o"></i> <span>{{ r.title }}</span></a></li>
+        {% endfor %}
+      </ul>
+    </li>
   {% endfor %}
 {% endblock %}
 
