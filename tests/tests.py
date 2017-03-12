@@ -19,7 +19,7 @@ import feedparser
 
 if __name__ == '__main__':
 
-    url = "https://lightless.me/feed"
+    url = "http://www.92ez.com/rss.php"
     content = requests.get(url).content
     raw_feed = feedparser.parse(content)
     print(raw_feed)
