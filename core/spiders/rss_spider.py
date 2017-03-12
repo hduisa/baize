@@ -57,15 +57,20 @@ class RssSpider(object):
         for feed in raw_feed.get("entries"):
             title = feed.get("title")
             link = feed.get("link")
-            content = feed.get("content", "")[0].get("value", "")
+            try:
+                content = feed.get("content", "")[0].get("value", "")
+            except IndexError:
+                content = feed.get("summary", "")
             if content == "":
                 content = link
             summary = feed.get("summary", "")
             if summary == "":
-                summary = content[:256]
+                summary = content[:512]
+            else:
+                summary = summary[:512]
             publish_time = feed.get("published_parsed")
 
-            # 检查是否存在该情报了
+            # 检查是否存在该文章了
             temp_qs = BzArticles.objects.filter(url=link).first()
             if temp_qs:
                 logger.info("文章[{0}]已经存在".format(title))
